@@ -1,47 +1,28 @@
 ﻿using FieldMask;
 using FieldMask.Abstractions;
-using FieldMask.Enums;
 
-IVaccineRepository vaccineRepo = new VaccineRepository();
+var builder = WebApplication.CreateBuilder(args);
 
-var vaccine = new VaccineRecord
+builder.Services.AddSingleton<IVaccineRepository, VaccineRepository>();
+
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+var app = builder.Build();
+
+app.UseSwagger();
+app.UseSwaggerUI();
+
+app.MapGet("/vaccines", (
+    [AsParameters] VaccineFieldMask mask,
+    IVaccineRepository vaccineRepository) =>
 {
-    Id = Guid.NewGuid(),
-    ChildName = "John Doe",
-    AgeMonths = 12,
-    VaccineName = "MMR",
-    DoseMl = 0.5f,
-    VaccineType = VaccineType.MMR,
-    Status = Status.Completed,
-    DoctorName = "Dr. Smith"
-};
+    var records = vaccineRepository.GetAllRecords();
 
-var record2 = new VaccineRecord
-{
-    Id = Guid.NewGuid(),
-    ChildName = "John Doe 2",
-    AgeMonths = 10,
-    VaccineName = "MMR",
-    DoseMl = 0.5f,
-    VaccineType = VaccineType.MMR,
-    Status = Status.Completed,
-    DoctorName = "Dr. Smith"
-};
-
-VaccineHelpers.Print(vaccine, new VaccineFieldMask
-{
-    ChildName = false,
-    AgeMonths = true,
-    VaccineName = true,
-    DoseMl = true,
-    VaccineType = true,
-    Status = false,
-    DoctorName = false
+    var result = records.Select(vaccine =>
+        VaccineHelpers.GetVaccinesByMask(vaccine, mask));
+    
+    return Results.Ok(result);
 });
 
-vaccineRepo.AddRecord(vaccine);
-vaccineRepo.AddRecord(record2);
-
-var mmrVaccines = vaccineRepo.GetByVaccineName("MMR");
-
-Console.WriteLine($"{mmrVaccines.Count()} matching records found");    
+app.Run();

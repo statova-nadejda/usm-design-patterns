@@ -33,31 +33,31 @@ public static class VaccineHelpers
         {
             case VaccineField.ChildName:
             {
-                return vaccineFieldMask.ChildName;
+                return vaccineFieldMask.ChildName ?? false;
             }
             case VaccineField.AgeMonths:
             {
-                return vaccineFieldMask.AgeMonths;
+                return vaccineFieldMask.AgeMonths ?? false;
             }
             case VaccineField.VaccineName:
             {
-                return vaccineFieldMask.VaccineName;
+                return vaccineFieldMask.VaccineName ?? false;
             }
             case VaccineField.DoseMl:
             {
-                return vaccineFieldMask.DoseMl;
+                return vaccineFieldMask.DoseMl ?? false;;
             }
             case VaccineField.VaccineType:
             {
-                return vaccineFieldMask.VaccineType;
+                return vaccineFieldMask.VaccineType ?? false;;
             }
             case VaccineField.Status:
             {
-                return vaccineFieldMask.Status;
+                return vaccineFieldMask.Status ?? false;;
             }
             case VaccineField.DoctorName:
             {
-                return vaccineFieldMask.DoctorName;
+                return vaccineFieldMask.DoctorName ??  false;
             }
             default:
             {
@@ -127,5 +127,45 @@ public static class VaccineHelpers
             VaccineField.DoctorName => vaccineRecord.DoctorName,
             _ => throw new ArgumentException("Invalid vaccine field")
         };
+    }
+
+    public static Dictionary<string, object?> GetVaccinesByMask(VaccineRecord vaccine, VaccineFieldMask? mask)
+    {
+        var maskIsEmpty = VaccineHelpers.MaskIsEmpty(mask);
+        if (maskIsEmpty)
+        {
+            mask = new  VaccineFieldMask()
+            {
+                ChildName = true,
+                AgeMonths = true,
+                VaccineName = true,
+                DoseMl = true,
+                VaccineType = true,
+                Status = true,
+                DoctorName = true,
+            };
+        }
+        
+        var result = new Dictionary<string, object?>();
+
+        for (var i = VaccineField.FirstField; i < VaccineField.Count; i++)
+        {
+            if (Get(mask, i))
+            {
+                result[i.ToString()] = GetValue(vaccine, i);
+            }
+        }
+        return  result;
+    }
+
+    public static bool MaskIsEmpty(VaccineFieldMask mask)
+    {
+        return mask.ChildName is null
+               && mask.AgeMonths is null
+               && mask.VaccineName is null
+               && mask.DoseMl is null
+               && mask.VaccineType is null
+               && mask.Status is null
+               && mask.DoctorName is null;
     }
 }
