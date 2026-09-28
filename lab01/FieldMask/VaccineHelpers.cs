@@ -168,4 +168,50 @@ public static class VaccineHelpers
                && mask.Status is null
                && mask.DoctorName is null;
     }
+    
+    public static VaccineFieldMask Union(
+        VaccineFieldMask first,
+        VaccineFieldMask second)
+    {
+        return new VaccineFieldMask
+        {
+            ChildName = (first.ChildName ?? false) || (second.ChildName ?? false),
+            AgeMonths = (first.AgeMonths ?? false) || (second.AgeMonths ?? false),
+            VaccineName = (first.VaccineName ?? false) || (second.VaccineName ?? false),
+            DoseMl = (first.DoseMl ?? false) || (second.DoseMl ?? false),
+            VaccineType = (first.VaccineType ?? false) || (second.VaccineType ?? false),
+            Status = (first.Status ?? false) || (second.Status ?? false),
+            DoctorName = (first.DoctorName ?? false) || (second.DoctorName ?? false)
+        };
+    }
+
+    public static VaccineFieldMask Intersect(
+        VaccineFieldMask first,
+        VaccineFieldMask second)
+    {
+        return new VaccineFieldMask
+        {
+            ChildName = (first.ChildName ?? false) && (second.ChildName ?? false),
+            AgeMonths = (first.AgeMonths ?? false) && (second.AgeMonths ?? false),
+            VaccineName = (first.VaccineName ?? false) && (second.VaccineName ?? false),
+            DoseMl = (first.DoseMl ?? false) && (second.DoseMl ?? false),
+            VaccineType = (first.VaccineType ?? false) && (second.VaccineType ?? false),
+            Status = (first.Status ?? false) && (second.Status ?? false),
+            DoctorName = (first.DoctorName ?? false) && (second.DoctorName ?? false)
+        };
+    }
+
+    public static VaccineFieldMask Invert(VaccineFieldMask mask)
+    {
+        return new VaccineFieldMask
+        {
+            ChildName = !(mask.ChildName ?? false),
+            AgeMonths = !(mask.AgeMonths ?? false),
+            VaccineName = !(mask.VaccineName ?? false),
+            DoseMl = !(mask.DoseMl ?? false),
+            VaccineType = !(mask.VaccineType ?? false),
+            Status = !(mask.Status ?? false),
+            DoctorName = !(mask.DoctorName ?? false)
+        };
+    }
 }
