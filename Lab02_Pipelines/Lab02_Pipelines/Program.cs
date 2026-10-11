@@ -16,15 +16,23 @@ var orderContext = new OrderContext()
 
 var examplePipeline = new Pipeline(
 [
-    new ApplyDiscountPipelineStep()
-    {
-        _discountPercentage = 10
-    },
-    new AddShippingPipelineStep()
-    {
-        _shippingCost = 50.00
-    },
-    new PrintOrderPipelineStep()
+    new OrderValidationDecorator(
+        new PriceChangeDecorator(
+            new ApplyDiscountPipelineStep()
+                {
+                    _discountPercentage = 10
+                }
+        )
+    ),
+    
+    new PriceChangeDecorator(
+        new AddShippingPipelineStep()
+            {
+                _shippingCost = 50.00
+            }
+    ),
+    
+    PrintOrderPipelineStep.Instance
 ]);
 
 while (true)
@@ -53,12 +61,12 @@ while (true)
         }
         case "PrintOrder":
         {
-            examplePipeline.AddStep(new PrintOrderPipelineStep());
+            examplePipeline.AddStep(PrintOrderPipelineStep.Instance);
             break;
         }
         case "Introspect":
         {
-            examplePipeline.Introspect(orderContext);
+            examplePipeline.PrintSteps(orderContext);
             break;
         }
         case "Execute":

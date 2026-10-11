@@ -1,4 +1,5 @@
-﻿using Lab02_Pipelines;
+﻿using System.Text;
+using Lab02_Pipelines;
 
 sealed class Pipeline
 {
@@ -23,15 +24,26 @@ sealed class Pipeline
     {
         foreach (var step in _steps)
         {
+            if (context.IsDone)
+            {
+                break;
+            }
             step.Execute(context);
         }
     }
 
-    public void Introspect(OrderContext context)
+    public string Introspect(OrderContext context)
     {
+        var sb = new StringBuilder();
         foreach (var step in _steps)
         {
-            step.Introspect();
+            step.Introspect(sb);
         }
+        return sb.ToString();
+    }
+
+    public void PrintSteps(OrderContext context)
+    {
+        Console.WriteLine(Introspect(context));
     }
 }
